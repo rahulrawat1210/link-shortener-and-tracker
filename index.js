@@ -1,18 +1,18 @@
-var mongoose = require('mongoose')
-var express = require('express')
-var app = express()
-var path = require('path')
-var Schema = mongoose.Schema;
-var bodyParser = require('body-parser');
-var config = require('./config.js');
-var base58 = require('./base58.js');
+const mongoose = require('mongoose')
+const express = require('express')
+const app = express()
+const path = require('path')
+const Schema = mongoose.Schema;
+const bodyParser = require('body-parser')
+const config = require('./config.js')
+const base58 = require('./base58.js')
 
 // grab the url modelss
-var Url = require('./models/url.js');
+var Url = require('./models/url.js')
 
 // create a connection to our MongoDB
 mongoose.connect('mongodb://' + config.db.host + '/' + config.db.name, () => {
-    console.log("Connected to db...");
+    console.log("Connected to db...")
 });
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -29,10 +29,6 @@ var server = app.listen(3000,function(){
 // {
 //     res.send("rajat");
 // })
-app.get('/', function (req, res) {
-    // route to serve up the homepage (index.html)
-    //res.sendFile(path.join(__dirname, 'public/index.html'));
-});
 
 app.post('/api/shorten', function (req, res) {
     var longUrl = req.body.url;
@@ -49,7 +45,7 @@ app.post('/api/shorten', function (req, res) {
             // since the document exists, we return it without creating a new entry
             res.send({
                 'shortUrl': shortUrl
-            });
+            })
         } else {
             // The long URL was not found in the long_url field in our urls
             // collection, so we need to create a new entry:
@@ -69,7 +65,7 @@ app.post('/api/shorten', function (req, res) {
                 res.send({
                     'shortUrl': shortUrl
                 });
-            });
+            })
         }
 
     });
@@ -90,10 +86,9 @@ app.get('/:encoded_id', function (req, res) {
             // nothing found, take 'em home
             res.redirect(config.webhost);
         }
-    });
+    })
 
-});
-
+})
 
 
 
