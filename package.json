@@ -1,0 +1,24 @@
+{
+  "name": "link-shortener-and-tracker",
+  "version": "1.0.0",
+  "description": "A link shortener and tracker tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rahulrawat1210/link-shortener-and-tracker.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "express"
+  ],
+  "author": "Rahul Singh Rawat, Mohit Gupta, Rajat Singh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rahulrawat1210/link-shortener-and-tracker/issues"
+  },
+  "homepage": "https://github.com/rahulrawat1210/link-shortener-and-tracker#readme"
+}
