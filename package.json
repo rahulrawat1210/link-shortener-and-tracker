@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/rahulrawat1210/link-shortener-and-tracker/issues"
   },
-  "homepage": "https://github.com/rahulrawat1210/link-shortener-and-tracker#readme"
+  "homepage": "https://github.com/rahulrawat1210/link-shortener-and-tracker#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongoose": "^5.1.7"
+  }
 }
