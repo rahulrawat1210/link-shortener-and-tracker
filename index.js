@@ -106,43 +106,6 @@ app.get('/url/:encoded_id', function (req, res) {
     const IP = req.clientIp;
       //var date = new Date();
 
-<<<<<<< HEAD
-    var os = agent.os.toString();
-    console.log(deviceType + ": " + os);
-
-    // check if url already exists in database
-    Url.findOne({
-        _id: id
-    }, function (err, doc) {
-        if (doc) {
-            // found an entry in the DB, redirect the user to their destination
-            res.redirect(doc.long_url);
-        } else {
-            // nothing found, take 'em home
-            res.redirect(config.webhost);
-        }
-    })
-
-})
-
-
-
-
-//Testing server request
-app.get('/hello/', function (req, res) {
-    
-    
-    var data = { ip :req.clientIp,deviceType,os,country, region, city};
-
-request.post({
-    headers: {'content-type': 'application/json'},
-    url: 'http://localhost:3000/new',
-    form: data
-}, function(error, response){
-  console.log('ended');
-});
-      res.redirect('https://google.com')
-=======
     var country, region, city, timezone;
 
     var os = agent.os.toString();
@@ -216,7 +179,6 @@ request.post({
             res.redirect(config.webhost);
         }
     })
->>>>>>> 45a804a993dced4daaa83dc574fda511890d744f
 })
 
 // //Testing server request
@@ -234,6 +196,7 @@ app.post('/insertLog', (req, res)=>{
         country: req.body._country,
         city: req.body._city,
         region: req.body._region,
+        
         device: {
             devType: req.body._type,
             os: req.body._os
