@@ -13,6 +13,11 @@ const device = require("express-device")
 
 // grab the url modelss
 var Url = require('./models/url.js')
+var counter = require('./models/counter.js')
+
+app.use(device.capture({
+    parseUserAgent: true
+}));
 
 app.use(requestIp.mw());
 useragent(true);
@@ -32,6 +37,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+
 var server = app.listen(3000,function(){
     console.log('Server started on port 3000')
 })
@@ -83,8 +90,15 @@ app.post('/api/shorten', function (req, res) {
 });
 app.get('/:encoded_id', function (req, res) {
     var base58Id = req.params.encoded_id;
-    var id = base58.decode(base58Id);
-    var ver = req.device.parser.useragent.major+"."+req.device.parser.useragent.minor+"."+req.device.parser.useragent.patch;
+    
+    var id = base58.decode(base58Id);   
+    
+    var ver = req.device.parser.useragent.major + "."
+            + req.device.parser.useragent.minor + "." 
+            + req.device.parser.useragent.patch;
+
+    var deviceType = req.device.type;
+
     var agent = useragent.parse(req.headers['user-agent']);
     const IP = req.clientIp;
     var os = agent.os.toString();
