@@ -13,7 +13,7 @@ const device = require("express-device")
 
 // grab the url modelss
 var Url = require('./models/url.js')
-
+app.use(device.capture({parseUserAgent:true}))
 app.use(requestIp.mw());
 useragent(true);
 app.use(bodyParser.json());
