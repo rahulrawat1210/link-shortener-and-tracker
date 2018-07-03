@@ -7,8 +7,13 @@ var logs = Schema({
         required: true
     },
     timestamp: {
+<<<<<<< HEAD
         type: Date,
         default: Date.now()
+=======
+        type: String,
+        default: Date.now().toLocaleString()
+>>>>>>> a31fb17196b32f5a0ccbbc310a482386bd55e331
     },
     ip: {
         type:String,
