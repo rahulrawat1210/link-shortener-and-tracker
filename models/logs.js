@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var logs = Schema({
     _id: {
-        type: String,
+        type: Number,
+        default: 0,
         required: true
     },
     timestamp: {
@@ -30,10 +31,13 @@ var logs = Schema({
         type: String,
         default: 0
     },
-    device: {
-        type: String,
-        os: String,
-        default: "none"
+    device: {       
+        devType: String,
+        os: String   
+    },
+    url_ID: {
+        type: Number,
+        required: true
     }
 });
 

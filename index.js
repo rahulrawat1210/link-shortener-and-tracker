@@ -14,6 +14,7 @@ const device = require("express-device")
 // grab the url modelss
 var Url = require('./models/url.js')
 var counter = require('./models/counter.js')
+var logs = require('./models/logs.js');
 
 app.use(device.capture({
     parseUserAgent: true
@@ -57,12 +58,13 @@ app.post('/api/shorten', function (req, res) {
     }, function (err, doc) {
         if (doc) {
             // base58 encode the unique _id of that document and construct the short URL
-            shortUrl = config.webhost + base58.encode(doc._id);
+            shortUrl = config.webhost + "url/" + base58.encode(doc._id);
 
             // since the document exists, we return it without creating a new entry
             res.send({
                 'shortUrl': shortUrl
             })
+
         } else {
             // The long URL was not found in the long_url field in our urls
             // collection, so we need to create a new entry:
@@ -93,7 +95,8 @@ app.get('/url/:encoded_id', function (req, res) {
     
     var id = base58.decode(base58Id);   
     
-    var ver = req.device.parser.useragent.major + "."
+    var ver = req.device.parser.useragent.family + ": " 
+            + req.device.parser.useragent.major + "."
             + req.device.parser.useragent.minor + "." 
             + req.device.parser.useragent.patch;
 
@@ -103,6 +106,7 @@ app.get('/url/:encoded_id', function (req, res) {
     const IP = req.clientIp;
       //var date = new Date();
 
+<<<<<<< HEAD
     var os = agent.os.toString();
     console.log(deviceType + ": " + os);
 
@@ -138,11 +142,103 @@ request.post({
   console.log('ended');
 });
       res.redirect('https://google.com')
+=======
+    var country, region, city, timezone;
+
+    var os = agent.os.toString();
+    
+    request.get({
+        url: "http://ip-api.com/json/" + IP,
+        json: true,
+    
+    }, (error, res, data) => {
+        if (error) {
+            console.log('Error:', error);
+            res.json({
+                success: false,
+                err: 'Problem in Geo Location API!!!'
+            });
+            
+        } else if (res.statusCode !== 200) {
+            console.log('Status:', res.statusCode);
+            res.json({
+                success: false,
+                err: 'No data Found for this IP!!!!'
+            });
+    
+        } else {
+    
+            if (data.status == 'fail') {
+                res.json({
+                    success: false,
+                    err: "Invalid IP " + data.query
+                });
+    
+            } else {
+                country = data.country;
+                timezone = data.timezone;
+                city = data.city;
+                region = data.regionName;
+            }
+        }
+    });
+
+    var data = {
+        _id: id,
+        _ver: ver,
+        _type: deviceType,
+        _country: country,
+        _region: region,
+        _city: city,
+        _os: os,
+        _agent: ver,
+        _ip: IP
+    };
+
+    request.post({
+        headers: {'content-type': 'application/json'},
+        url: 'http://localhost:3000/insertLog',
+        form: data
+
+    }, function(error, response){
+        console.log('ended');
+    });
+    
+    // check if url already exists in database
+    Url.findOne({
+        _id: id
+    }, function (err, doc) {
+        if (doc) {
+            // found an entry in the DB, redirect the user to their destination
+            res.redirect(doc.long_url);
+        } else {
+            // nothing found, take 'em home
+            res.redirect(config.webhost);
+        }
+    })
+>>>>>>> 45a804a993dced4daaa83dc574fda511890d744f
 })
 
-app.post('/new', (req, res)=>{
+// //Testing server request
+// app.get('/hello/', function(req, res){
+    
+// })
+
+app.post('/insertLog', (req, res)=>{
     res.end();
-    setTimeout(function(){
-        console.log(req.body.ip)
-    }, 10000)
+    
+    logs.create({
+        _id: req.body._id,
+        ip: req.body._ip,
+        browser_type: req.body._agent,
+        country: req.body._country,
+        city: req.body._city,
+        region: req.body._region,
+        device: {
+            devType: req.body._type,
+            os: req.body._os
+        }
+    }, function(err){
+        console.log(err);
+    });
 })
