@@ -6,9 +6,19 @@ const Schema = mongoose.Schema;
 const bodyParser = require('body-parser')
 const config = require('./config.js')
 const base58 = require('./base58.js')
+const useragent = require('useragent')
+const request = require('request')
+const requestIp = require('request-ip')
+const device = require("express-device")
 
 // grab the url modelss
 var Url = require('./models/url.js')
+
+app.use(requestIp.mw());
+useragent(true);
+app.use(bodyParser.json());
+device.enableDeviceHelpers(app);
+device.enableViewRouting(app);
 
 // create a connection to our MongoDB
 mongoose.connect('mongodb://' + config.db.host + '/' + config.db.name, () => {
@@ -74,6 +84,10 @@ app.post('/api/shorten', function (req, res) {
 app.get('/:encoded_id', function (req, res) {
     var base58Id = req.params.encoded_id;
     var id = base58.decode(base58Id);
+    var ver = req.device.parser.useragent.major+"."+req.device.parser.useragent.minor+"."+req.device.parser.useragent.patch;
+    var agent = useragent.parse(req.headers['user-agent']);
+    const IP = req.clientIp;
+    var os = agent.os.toString();
 
     // check if url already exists in database
     Url.findOne({

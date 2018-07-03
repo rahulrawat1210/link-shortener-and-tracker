@@ -12,6 +12,8 @@ var CounterSchema = Schema({
         default: 0
     }
 });
+
+var logSchema = new Schema();
 // create a model from that schema
 var counter = mongoose.model('counter', CounterSchema);
 // create a schema for our links
