@@ -102,6 +102,7 @@ app.get('/:encoded_id', function (req, res) {
     var agent = useragent.parse(req.headers['user-agent']);
     const IP = req.clientIp;
     var os = agent.os.toString();
+    console.log(deviceType + ": " + os);
 
     // check if url already exists in database
     Url.findOne({

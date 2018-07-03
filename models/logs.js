@@ -30,13 +30,10 @@ var logs = Schema({
         type: String,
         default: 0
     },
-    platform_type: {
+    device: {
         type: String,
-        default: 0
-    },
-    is_mobile: {
-        type: Boolean,
-        default: 0
+        os: String,
+        default: "none"
     }
 });
 
