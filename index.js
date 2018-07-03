@@ -107,3 +107,23 @@ app.get('/:encoded_id', function (req, res) {
 
 
 
+//Testing server request
+// app.get('/', function(req, res){
+//     var data = '{ "request" : "msg"}';
+// var json_obj = JSON.parse(data);
+// request.post({
+//     headers: {'content-type': 'application/json'},
+//     url: 'http://localhost:3000/new',
+//     form: json_obj
+// }, function(error, response){
+//   console.log('ended');
+// });
+//       res.redirect('https://google.com')
+// })
+
+// app.post('/new', (req, res)=>{
+//     res.end();
+//     setTimeout(function(){
+//         console.log('response ended')
+//     }, 10000)
+// })
