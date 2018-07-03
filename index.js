@@ -81,7 +81,7 @@ app.post('/api/shorten', function (req, res) {
     });
 
 });
-app.get('/:encoded_id', function (req, res) {
+app.get('/url/:encoded_id', function (req, res) {
     var base58Id = req.params.encoded_id;
     var id = base58.decode(base58Id);
     var ver = req.device.parser.useragent.major+"."+req.device.parser.useragent.minor+"."+req.device.parser.useragent.patch;
@@ -108,22 +108,22 @@ app.get('/:encoded_id', function (req, res) {
 
 
 //Testing server request
-// app.get('/', function(req, res){
-//     var data = '{ "request" : "msg"}';
+app.get('/hello/', function(req, res){
+    var data = { ip :req.ip};
 // var json_obj = JSON.parse(data);
-// request.post({
-//     headers: {'content-type': 'application/json'},
-//     url: 'http://localhost:3000/new',
-//     form: json_obj
-// }, function(error, response){
-//   console.log('ended');
-// });
-//       res.redirect('https://google.com')
-// })
+request.post({
+    headers: {'content-type': 'application/json'},
+    url: 'http://localhost:3000/new',
+    form: data
+}, function(error, response){
+  console.log('ended');
+});
+      res.redirect('https://google.com')
+})
 
-// app.post('/new', (req, res)=>{
-//     res.end();
-//     setTimeout(function(){
-//         console.log('response ended')
-//     }, 10000)
-// })
+app.post('/new', (req, res)=>{
+    res.end();
+    setTimeout(function(){
+        console.log('response ended')
+    }, 10000)
+})
