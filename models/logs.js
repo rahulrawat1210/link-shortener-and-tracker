@@ -3,17 +3,13 @@ var Schema = mongoose.Schema;
 
 var logs = Schema({
     _id: {
-        type: String,
+        type: Number,
+        default: 0,
         required: true
     },
     timestamp: {
-<<<<<<< HEAD
-        type: Date,
-        default: Date.now()
-=======
         type: String,
         default: Date.now().toLocaleString()
->>>>>>> a31fb17196b32f5a0ccbbc310a482386bd55e331
     },
     ip: {
         type:String,
@@ -38,6 +34,10 @@ var logs = Schema({
     device: {       
         devType: String,
         os: String   
+    },
+    url_ID: {
+        type: Number,
+        required: true
     }
 });
 

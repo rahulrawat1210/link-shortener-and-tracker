@@ -16,26 +16,28 @@ request.get({
             success: false,
             err: 'Problem in Geo Location API!!!'
         });
+        
     } else if (res.statusCode !== 200) {
         console.log('Status:', res.statusCode);
         res.json({
             success: false,
             err: 'No data Found for this IP!!!!'
         });
+
     } else {
+
         if (data.status == 'fail') {
             res.json({
                 success: false,
                 err: "Invalid IP " + data.query
             });
+
         } else {
             country = data.country;
             timezone = data.timezone;
 
             city = data.city;
             region = data.regionName;
-            console.log(country, timezone, city, region);
-
         }
     }
 });
