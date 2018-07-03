@@ -8,7 +8,7 @@ var logs = Schema({
     },
     timestamp: {
         type: Date,
-        default: 0
+        default: Date.now()
     },
     ip: {
         type:String,
@@ -30,10 +30,9 @@ var logs = Schema({
         type: String,
         default: 0
     },
-    device: {
-        type: String,
-        os: String,
-        default: "none"
+    device: {       
+        devType: String,
+        os: String   
     }
 });
 

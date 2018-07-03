@@ -14,6 +14,7 @@ const device = require("express-device")
 // grab the url modelss
 var Url = require('./models/url.js')
 var counter = require('./models/counter.js')
+var logs = require('./models/logs.js');
 
 app.use(device.capture({
     parseUserAgent: true
@@ -57,12 +58,13 @@ app.post('/api/shorten', function (req, res) {
     }, function (err, doc) {
         if (doc) {
             // base58 encode the unique _id of that document and construct the short URL
-            shortUrl = config.webhost + base58.encode(doc._id);
+            shortUrl = config.webhost + "url/" + base58.encode(doc._id);
 
             // since the document exists, we return it without creating a new entry
             res.send({
                 'shortUrl': shortUrl
             })
+
         } else {
             // The long URL was not found in the long_url field in our urls
             // collection, so we need to create a new entry:
@@ -93,7 +95,8 @@ app.get('/url/:encoded_id', function (req, res) {
     
     var id = base58.decode(base58Id);   
     
-    var ver = req.device.parser.useragent.major + "."
+    var ver = req.device.parser.useragent.family + ": " 
+            + req.device.parser.useragent.major + "."
             + req.device.parser.useragent.minor + "." 
             + req.device.parser.useragent.patch;
 
@@ -102,8 +105,25 @@ app.get('/url/:encoded_id', function (req, res) {
     var agent = useragent.parse(req.headers['user-agent']);
     const IP = req.clientIp;
     var os = agent.os.toString();
-    console.log(deviceType + ": " + os);
 
+    var data = {
+        _id: id,
+        _ver: ver,
+        _type: deviceType,
+        _os: os,
+        _agent: ver,
+        _ip: IP
+    };
+
+    request.post({
+        headers: {'content-type': 'application/json'},
+        url: 'http://localhost:3000/insertLog',
+        form: data
+
+    }, function(error, response){
+        console.log('ended');
+    });
+    
     // check if url already exists in database
     Url.findOne({
         _id: id
@@ -116,29 +136,25 @@ app.get('/url/:encoded_id', function (req, res) {
             res.redirect(config.webhost);
         }
     })
-
 })
 
+// //Testing server request
+// app.get('/hello/', function(req, res){
+    
+// })
 
-
-
-//Testing server request
-app.get('/hello/', function(req, res){
-    var data = { ip :req.ip};
-// var json_obj = JSON.parse(data);
-request.post({
-    headers: {'content-type': 'application/json'},
-    url: 'http://localhost:3000/new',
-    form: data
-}, function(error, response){
-  console.log('ended');
-});
-      res.redirect('https://google.com')
-})
-
-app.post('/new', (req, res)=>{
+app.post('/insertLog', (req, res)=>{
     res.end();
-    setTimeout(function(){
-        console.log('response ended')
-    }, 10000)
+    
+    logs.create({
+        _id: req.body._id,
+        ip: req.body._ip,
+        browser_type: req.body._agent,
+        device: {
+            devType: req.body._type,
+            os: req.body._os
+        }
+    }, function(err){
+        console.log(err);
+    });
 })
