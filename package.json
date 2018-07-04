@@ -23,8 +23,10 @@
   "homepage": "https://github.com/rahulrawat1210/link-shortener-and-tracker#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "express-device": "^0.4.2",
+    "express-session": "^1.15.6",
     "mongoose": "^5.1.7",
     "path": "^0.12.7",
     "request": "^2.87.0",

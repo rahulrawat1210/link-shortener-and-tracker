@@ -1,15 +1,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var logs = Schema({
-    _id: {
-        type: Number,
-        default: 0,
-        required: true
-    },
+var logSchema = Schema({
+    
     timestamp: {
         type: String,
-        default: Date.now().toLocaleString()
+        default: Date.now().toString()
     },
     ip: {
         type:String,
@@ -41,9 +37,9 @@ var logs = Schema({
     }
 });
 
-var logSchema = new Schema();
+
 // create a model from that schema
-var logs = mongoose.model('logs', logs);
+var logs = mongoose.model('logs', logSchema);
 
 
 module.exports = logs;
