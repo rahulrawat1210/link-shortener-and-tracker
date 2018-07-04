@@ -12,6 +12,7 @@ const requestIp = require('request-ip')
 const device = require("express-device")
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
+const myUrl = require('url');
 var countBlockRequests = 1;
 
 // grab the url modelss
@@ -65,7 +66,7 @@ app.post('/api/shorten', function (req, res) {
     }, function (err, doc) {
         if (doc) {
             // base58 encode the unique _id of that document and construct the short URL
-            shortUrl = config.webhost + "url/" + base58.encode(doc._id);
+            shortUrl = config.webhost + base58.encode(doc._id);
 
             // since the document exists, we return it without creating a new entry
             res.send({
@@ -92,136 +93,6 @@ app.post('/api/shorten', function (req, res) {
                     'shortUrl': shortUrl
                 });
             })
-        }
-
-    });
-
-});
-app.get('/url/:encoded_id', function (req, res) {
-
-    if(req.cookies.startTime !== null && req.cookies.startTime !== undefined) {
-        res.cookie('currentTime', new Date().getTime());
-
-    } else {    
-        res.cookie('startTime', date.getTime());
-        countBlockRequests = 1;
-    }
-    
-    if(req.cookies.counter !== null && req.cookies.counter !== undefined) {
-        var counter =  1 + parseInt(req.cookies.counter);
-        console.log(counter);
-        res.cookie('counter', counter);
-
-    } else {
-        res.cookie('counter', 1);
-    }
-
-    var base58Id = req.params.encoded_id;
-    
-    var id = base58.decode(base58Id);   
-    
-    var ver = req.device.parser.useragent.family + ": " 
-            + req.device.parser.useragent.major + "."
-            + req.device.parser.useragent.minor + "." 
-            + req.device.parser.useragent.patch;
-
-    var deviceType = req.device.type;
-
-    var agent = useragent.parse(req.headers['user-agent']);
-    const IP = req.clientIp;
-      //var date = new Date();
-
-    var country, region, city, timezone;
-
-    var os = agent.os.toString();
-    
-    request.get({
-        url: "http://ip-api.com/json/122.161.193.100", // + IP,
-        json: true,
-    
-    }, (error, ress, data) => {
-        if (error) {
-            console.log('Error:', error);
-            res.json({
-                success: false,
-                err: 'Problem in Geo Location API!!!'
-            });
-            
-        } else if (ress.statusCode !== 200) {
-            // console.log('Status:', ress.statusCode);
-            res.json({
-                success: false,
-                err: 'No data Found for this IP!!!!'
-            });
-    
-        } else {
-    
-            if (data.status == 'fail') {
-                res.json({
-                    success: false,
-                    err: "Invalid IP " + data.query
-                });
-    
-            } else {
-                country = data.country;
-                timezone = data.timezone;
-                city = data.city;
-                region = data.regionName;
-                
-                var data = {
-                    _id: id,
-                    _ver: ver,
-                    _type: deviceType,
-                    _country: country,
-                    _region: region,
-                    _city: city,
-                    _os: os,
-                    _agent: ver,
-                    _ip: IP
-                };
-            
-                request.post({
-                    headers: {'content-type': 'application/json'},
-                    url: 'http://localhost:3000/insertLog',
-                    form: data
-            
-                }, function(error, response){
-                    // console.log('ended');
-                });
-                
-                // check if url already exists in database and updates the hit number
-                Url.findByIdAndUpdate({_id: id}, { $inc: {noOfHits: 1} }, function (err, doc) {
-                    
-                    if (doc) {
-                        
-                        console.log((req.cookies.currentTime - req.cookies.startTime));
-                        
-                        if(req.cookies.counter >= 3 && (req.cookies.currentTime - req.cookies.startTime) <= 100000) {
-                            
-                            if(req.cookies.timestamp !== null && req.cookies.timestamp !== undefined) {
-                                if(Date.now() - req.cookies.timestamp > 50000) {
-                                    res.clearCookie('timestamp');
-                                    res.clearCookie('startTime');
-                                    res.redirect(doc.long_url);
-
-                                } else {
-                                    res.send('BLOCKED');
-                                }
-                            } else {
-                                res.cookie('timestamp', Date.now()).send('BLOCKED'); 
-                            }
-                            
-                        } else {
-                            res.redirect(doc.long_url);
-                        }
-
-                    } else {
-                        res.redirect(config.webhost);
-                    }
-                });
-
-            }
-
         }
 
     });
@@ -254,3 +125,152 @@ app.post('/insertLog', (req, res)=>{
         if(err) console.log(err);
     });
 })
+
+app.get('/viewmore', function (req, res) {
+    var sURL = myUrl.parse(sURL).path.substr(1);
+   
+    logs.find({sURL}, function (err, data) {
+        res.send(data);
+    });
+
+    // console.log(myUrl.parse(sURL).path.substr(1));    
+})
+
+app.get('/:encoded_id', function (req, res) {
+
+    if (req.cookies.startTime !== null && req.cookies.startTime !== undefined) {
+        res.cookie('currentTime', new Date().getTime());
+
+    } else {
+        res.cookie('startTime', date.getTime());
+        countBlockRequests = 1;
+    }
+
+    if (req.cookies.counter !== null && req.cookies.counter !== undefined) {
+        var counter = 1 + parseInt(req.cookies.counter);
+        console.log(counter);
+        res.cookie('counter', counter);
+
+    } else {
+        res.cookie('counter', 1);
+    }
+
+    var base58Id = req.params.encoded_id;
+
+    var id = base58.decode(base58Id);
+
+    var ver = req.device.parser.useragent.family + ": " +
+        req.device.parser.useragent.major + "." +
+        req.device.parser.useragent.minor + "." +
+        req.device.parser.useragent.patch;
+
+    var deviceType = req.device.type;
+
+    var agent = useragent.parse(req.headers['user-agent']);
+    const IP = req.clientIp;
+    //var date = new Date();
+
+    var country, region, city, timezone;
+
+    var os = agent.os.toString();
+
+    request.get({
+        url: "http://ip-api.com/json/122.161.193.100", // + IP,
+        json: true,
+
+    }, (error, ress, data) => {
+        if (error) {
+            console.log('Error:', error);
+            res.json({
+                success: false,
+                err: 'Problem in Geo Location API!!!'
+            });
+
+        } else if (ress.statusCode !== 200) {
+            // console.log('Status:', ress.statusCode);
+            res.json({
+                success: false,
+                err: 'No data Found for this IP!!!!'
+            });
+
+        } else {
+
+            if (data.status == 'fail') {
+                res.json({
+                    success: false,
+                    err: "Invalid IP " + data.query
+                });
+
+            } else {
+                country = data.country;
+                timezone = data.timezone;
+                city = data.city;
+                region = data.regionName;
+
+                var data = {
+                    _id: id,
+                    _ver: ver,
+                    _type: deviceType,
+                    _country: country,
+                    _region: region,
+                    _city: city,
+                    _os: os,
+                    _agent: ver,
+                    _ip: IP
+                };
+
+                request.post({
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    url: 'http://localhost:3000/insertLog',
+                    form: data
+
+                }, function (error, response) {
+                    // console.log('ended');
+                });
+
+                // check if url already exists in database and updates the hit number
+                Url.findByIdAndUpdate({
+                    _id: id
+                }, {
+                    $inc: {
+                        noOfHits: 1
+                    }
+                }, function (err, doc) {
+
+                    if (doc) {
+
+                        console.log((req.cookies.currentTime - req.cookies.startTime));
+
+                        if (req.cookies.counter >= 3 && (req.cookies.currentTime - req.cookies.startTime) <= 100000) {
+
+                            if (req.cookies.timestamp !== null && req.cookies.timestamp !== undefined) {
+                                if (Date.now() - req.cookies.timestamp > 50000) {
+                                    res.clearCookie('timestamp');
+                                    res.clearCookie('startTime');
+                                    res.redirect(doc.long_url);
+
+                                } else {
+                                    res.send('BLOCKED');
+                                }
+                            } else {
+                                res.cookie('timestamp', Date.now()).send('BLOCKED');
+                            }
+
+                        } else {
+                            res.redirect(doc.long_url);
+                        }
+
+                    } else {
+                        res.redirect(config.webhost);
+                    }
+                });
+
+            }
+
+        }
+
+    });
+
+});
