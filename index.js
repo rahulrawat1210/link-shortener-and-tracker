@@ -13,7 +13,7 @@ const device = require("express-device")
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
 const myUrl = require('url');
-var countBlockRequests = 1;
+var blocked = false;
 var cors = require('cors');
 app.use(cors());
 
@@ -109,7 +109,7 @@ app.get('/getData', function (req, res) {
             
             docs.forEach(function(doc) {
                 var data = {
-                    shortURL: config.webhost + "url/" + base58.encode(doc._id),
+                    shortURL: config.webhost + base58.encode(doc._id),
                     longURL: doc.long_url,
                     dateCreated: doc.created_at
                 }
@@ -121,12 +121,6 @@ app.get('/getData', function (req, res) {
     });
 });
 
-app.get('/url/:encoded_id', function (req, res) {
-
-// //Testing server request
-// app.get('/hello/', function(req, res){
-    
-// })
 
 
 app.post('/insertLog', (req, res)=>{
@@ -150,14 +144,20 @@ app.post('/insertLog', (req, res)=>{
     });
 })
 
-app.get('/viewmore', function (req, res) {
-    var sURL = myUrl.parse(sURL).path.substr(1);
-   
-    logs.find({sURL}, function (err, data) {
+app.post('/viewmore', function (req, res) {
+    var sURL = myUrl.parse(req.body.sURL).path.substr(1);
+    console.log("sURL: "+sURL);
+    console.log("decoded: "+base58.decode(sURL));
+    logs.find({url_ID: base58.decode(sURL)}, function (err, data) {
+        console.log(data);
         res.send(data);
     });
 
     // console.log(myUrl.parse(sURL).path.substr(1));    
+});
+
+app.get('/viewInfo', function(req, res) {
+    res.sendFile(path.join(__dirname, "public", "viewAll.html")); //
 });
 
 app.get('/:encoded_id', function (req, res) {
@@ -243,17 +243,19 @@ app.get('/:encoded_id', function (req, res) {
                     _ip: IP
                 };
 
-                request.post({
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    url: 'http://localhost:3000/insertLog',
-                    form: data
-
-                }, function (error, response) {
-                    // console.log('ended');
-                });
-
+                if(!blocked){
+                    request.post({
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        url: 'http://localhost:3000/insertLog',
+                        form: data
+    
+                    }, function (error, response) {
+                        // console.log('ended');
+                    });
+                }
+                
                 // check if url already exists in database and updates the hit number
                 Url.findByIdAndUpdate({
                     _id: id
@@ -273,14 +275,17 @@ app.get('/:encoded_id', function (req, res) {
                                 if (Date.now() - req.cookies.timestamp > 50000) {
                                     res.clearCookie('timestamp');
                                     res.clearCookie('startTime');
+                                    blocked = false;
                                     res.redirect(doc.long_url);
 
                                 } else {
+                                    blocked = true;
                                     res.send('BLOCKED');
                                 }
-                            } else {
+                        } else {
                                 res.cookie('timestamp', Date.now()).send('BLOCKED');
-                            }
+                                blocked = true;
+                        }
 
                         } else {
                             res.redirect(doc.long_url);
@@ -290,11 +295,10 @@ app.get('/:encoded_id', function (req, res) {
                         res.redirect(config.webhost);
                     }
                 });
-
             }
 
         }
 
-    });
+    })
 
 });

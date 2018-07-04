@@ -42,11 +42,7 @@ urlSchema.pre('save', function (next) {
     }, function (error, count) {
         if (error) {
             //There is no counter yet
-            console,log(error);
-            counter.create({
-                _id: 'url_count',
-                seq: 1
-            });
+            console.log(error);
 
             counter.findByIdAndUpdate({
                 _id: 'url_count'
@@ -54,13 +50,13 @@ urlSchema.pre('save', function (next) {
                 $inc: {
                     seq: 1
                 }
-            }, function (error, count) {
+            }, function (error, count2) {
                 if (error) {
                     //There is no counter yet
-                    console,log(error);           
+                    console.log(error);           
                 }
                 // set the _id of the urls collection to the incremented value of the counter
-                doc._id = count.seq;
+                doc._id = count2.seq;
                 var date = new Date();
                 doc.created_at = date.toDateString() + " @ " + date.toTimeString();
                 next();

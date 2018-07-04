@@ -15,4 +15,9 @@ var CounterSchema = Schema({
 
 var counter = mongoose.model('counter', CounterSchema);
 
+// counter.create({
+//     _id: 'url_count',
+//     seq: 1
+// });
+
 module.exports = counter;
