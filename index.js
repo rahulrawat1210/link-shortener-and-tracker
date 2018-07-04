@@ -245,6 +245,7 @@ app.post('/insertLog', (req, res)=>{
         timestamp: date.toDateString() + " @ " + date.toTimeString(), 
         city: req.body._city,
         region: req.body._region,
+        
         device: {
             devType: req.body._type,
             os: req.body._os
