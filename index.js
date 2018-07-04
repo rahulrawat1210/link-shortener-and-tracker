@@ -13,6 +13,8 @@ const device = require("express-device")
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
 var countBlockRequests = 1;
+var cors = require('cors');
+app.use(cors());
 
 // grab the url modelss
 var Url = require('./models/url.js')
@@ -97,6 +99,27 @@ app.post('/api/shorten', function (req, res) {
     });
 
 });
+
+app.get('/getData', function (req, res) {
+    Url.find({}, function (err, docs) {
+        if (err) console.log(err);
+        else
+            var dataMap = [];
+            
+            docs.forEach(function(doc) {
+                var data = {
+                    shortURL: config.webhost + "url/" + base58.encode(doc._id),
+                    longURL: doc.long_url,
+                    dateCreated: doc.created_at
+                }
+
+                dataMap.push(data);
+            });
+
+            res.send(dataMap);
+    });
+});
+
 app.get('/url/:encoded_id', function (req, res) {
 
     if(req.cookies.startTime !== null && req.cookies.startTime !== undefined) {

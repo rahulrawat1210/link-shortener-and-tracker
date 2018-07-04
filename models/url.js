@@ -29,6 +29,7 @@ var urlSchema = new Schema({
 
 // The pre('save', callback) middleware executes the callback function
 // every time before an entry is saved to the urls collection.
+
 urlSchema.pre('save', function (next) {
     var doc = this;
     // find the url_count and increment it by 1
@@ -60,7 +61,8 @@ urlSchema.pre('save', function (next) {
                 }
                 // set the _id of the urls collection to the incremented value of the counter
                 doc._id = count.seq;
-                doc.created_at = new Date();
+                var date = new Date();
+                doc.created_at = date.toDateString() + " @ " + date.toTimeString();
                 next();
             });            
         }

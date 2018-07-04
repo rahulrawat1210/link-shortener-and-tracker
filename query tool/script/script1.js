@@ -1,17 +1,8 @@
 $(document).ready(function() {
-  //var siteid = $('#siteid').val();
-       // var sdate = $('#sdate').val();
-        //var edate = $('#edate').val();
-        // var siteid = '';
-        // //var ip = $('#ip').val();
-        // var ip = '';
-        // var sdate = '1990-1-1';
-        //     var date = new Date();
-        //     var mon = date.getMonth() + 1;
-        //     var edate =  date.getFullYear()+"-"+mon+"-"+date.getDate();
+ 
         $.ajax({
             type: "get",
-            url: '/getdata',
+            url: 'http://localhost:3000/getData',
                     success: function (res) { if(res.success==false){ $('#d1').hide(); $('#tb1 tbody').empty(); alert("Error in db!!!");}
                                     else if(res.length==0){ $('#d1').hide(); $('#tb1 tbody').empty(); alert('No data found!!!');}
                                     else{   $('#d1').show();
@@ -23,11 +14,14 @@ $(document).ready(function() {
                                                     'copyHtml5',
                                                     'excelHtml5',
                                                     'csvHtml5',
+                                                ],
+                                                "columnDefs": [
+                                                    { "width": '50%', "targets": 2 }
                                                 ]
                                             });
                                             oTable.fnClearTable();
                                             $.each(res, function (key, item) {
-                                                oTable.fnAddData([item.site_id, item.url, item.ip, item.browser, item.browser_version, item.datetime, item.resolution, item.os, item.referrer, item.Device_Type, item.Device_name]);
+                                                oTable.fnAddData([item.shortURL, "<button class='btn btn-primary'>View Stats</button>", item.longURL, item.dateCreated]);
                                             });
                                     }
                                 },
