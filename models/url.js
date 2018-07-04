@@ -14,7 +14,6 @@ var Schema = mongoose.Schema;
 //     }
 // });
 
-var logSchema = new Schema();
 // create a model from that schema
 // var counter = mongoose.model('counter', CounterSchema);
 // create a schema for our links
@@ -24,6 +23,7 @@ var urlSchema = new Schema({
         index: false
     },
     long_url: String,
+    noOfHits: Number,
     created_at: Date
 });
 

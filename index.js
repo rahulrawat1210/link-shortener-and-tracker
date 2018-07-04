@@ -10,6 +10,9 @@ const useragent = require('useragent')
 const request = require('request')
 const requestIp = require('request-ip')
 const device = require("express-device")
+const cookieParser = require("cookie-parser");
+const session = require('express-session');
+var countBlockRequests = 1;
 
 // grab the url modelss
 var Url = require('./models/url.js')
@@ -20,11 +23,15 @@ app.use(device.capture({
     parseUserAgent: true
 }));
 
+app.use(session({secret: 'secret'}));
+app.use(cookieParser());
 app.use(requestIp.mw());
 useragent(true);
 app.use(bodyParser.json());
 device.enableDeviceHelpers(app);
 device.enableViewRouting(app);
+
+var date = new Date();
 
 // create a connection to our MongoDB
 mongoose.connect('mongodb://' + config.db.host + '/' + config.db.name, () => {
@@ -91,6 +98,24 @@ app.post('/api/shorten', function (req, res) {
 
 });
 app.get('/url/:encoded_id', function (req, res) {
+
+    if(req.cookies.startTime !== null && req.cookies.startTime !== undefined) {
+        res.cookie('currentTime', new Date().getTime());
+
+    } else {    
+        res.cookie('startTime', date.getTime());
+        countBlockRequests = 1;
+    }
+    
+    if(req.cookies.counter !== null && req.cookies.counter !== undefined) {
+        var counter =  1 + parseInt(req.cookies.counter);
+        console.log(counter);
+        res.cookie('counter', counter);
+
+    } else {
+        res.cookie('counter', 1);
+    }
+
     var base58Id = req.params.encoded_id;
     
     var id = base58.decode(base58Id);   
@@ -111,10 +136,10 @@ app.get('/url/:encoded_id', function (req, res) {
     var os = agent.os.toString();
     
     request.get({
-        url: "http://ip-api.com/json/" + IP,
+        url: "http://ip-api.com/json/122.161.193.100", // + IP,
         json: true,
     
-    }, (error, res, data) => {
+    }, (error, ress, data) => {
         if (error) {
             console.log('Error:', error);
             res.json({
@@ -122,8 +147,8 @@ app.get('/url/:encoded_id', function (req, res) {
                 err: 'Problem in Geo Location API!!!'
             });
             
-        } else if (res.statusCode !== 200) {
-            console.log('Status:', res.statusCode);
+        } else if (ress.statusCode !== 200) {
+            // console.log('Status:', ress.statusCode);
             res.json({
                 success: false,
                 err: 'No data Found for this IP!!!!'
@@ -142,58 +167,82 @@ app.get('/url/:encoded_id', function (req, res) {
                 timezone = data.timezone;
                 city = data.city;
                 region = data.regionName;
+                
+                var data = {
+                    _id: id,
+                    _ver: ver,
+                    _type: deviceType,
+                    _country: country,
+                    _region: region,
+                    _city: city,
+                    _os: os,
+                    _agent: ver,
+                    _ip: IP
+                };
+            
+                request.post({
+                    headers: {'content-type': 'application/json'},
+                    url: 'http://localhost:3000/insertLog',
+                    form: data
+            
+                }, function(error, response){
+                    // console.log('ended');
+                });
+                
+                // check if url already exists in database and updates the hit number
+                Url.findByIdAndUpdate({_id: id}, { $inc: {noOfHits: 1} }, function (err, doc) {
+                    
+                    if (doc) {
+                        
+                        console.log((req.cookies.currentTime - req.cookies.startTime));
+                        
+                        if(req.cookies.counter >= 3 && (req.cookies.currentTime - req.cookies.startTime) <= 100000) {
+                            
+                            if(req.cookies.timestamp !== null && req.cookies.timestamp !== undefined) {
+                                if(Date.now() - req.cookies.timestamp > 50000) {
+                                    res.clearCookie('timestamp');
+                                    res.clearCookie('startTime');
+                                    res.redirect(doc.long_url);
+
+                                } else {
+                                    res.send('BLOCKED');
+                                }
+                            } else {
+                                res.cookie('timestamp', Date.now()).send('BLOCKED'); 
+                            }
+                            
+                        } else {
+                            res.redirect(doc.long_url);
+                        }
+
+                    } else {
+                        res.redirect(config.webhost);
+                    }
+                });
+
             }
+
         }
+
     });
 
-    var data = {
-        _id: id,
-        _ver: ver,
-        _type: deviceType,
-        _country: country,
-        _region: region,
-        _city: city,
-        _os: os,
-        _agent: ver,
-        _ip: IP
-    };
-
-    request.post({
-        headers: {'content-type': 'application/json'},
-        url: 'http://localhost:3000/insertLog',
-        form: data
-
-    }, function(error, response){
-        console.log('ended');
-    });
-    
-    // check if url already exists in database
-    Url.findOne({
-        _id: id
-    }, function (err, doc) {
-        if (doc) {
-            // found an entry in the DB, redirect the user to their destination
-            res.redirect(doc.long_url);
-        } else {
-            // nothing found, take 'em home
-            res.redirect(config.webhost);
-        }
-    })
-})
+});
 
 // //Testing server request
 // app.get('/hello/', function(req, res){
     
 // })
 
+
 app.post('/insertLog', (req, res)=>{
     res.end();
-    
+
     logs.create({
-        _id: req.body._id,
+        url_ID: req.body._id,
         ip: req.body._ip,
         browser_type: req.body._agent,
         country: req.body._country,
+        timestamp: date.toDateString() + " @ " + date.toTimeString(), 
         city: req.body._city,
         region: req.body._region,
         
@@ -202,6 +251,6 @@ app.post('/insertLog', (req, res)=>{
             os: req.body._os
         }
     }, function(err){
-        console.log(err);
+        if(err) console.log(err);
     });
 })
