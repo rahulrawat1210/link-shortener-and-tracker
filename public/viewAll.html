@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
     <title>All logs</title>
     <meta charset="utf-8">
@@ -19,13 +20,41 @@
             word-wrap: break-word;
         }
 
+        .table>tbody>tr>td {
+            vertical-align: middle;
+            text-align: center;
+            padding: 12px 20px;
+        }
+
         .modal-dialog {
             width: 90vw;
             margin: auto;
         }
+
+        .btn {
+            margin-left: -5px;
+        }
+
+        .dataTables_wrapper {
+            padding-top: 45px;
+            padding-bottom: 20px;
+        }
+
+        .dt-buttons {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .dataTables_filter {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
     </style>
 
 </head>
+
 <body>
     <br>
     <br>
@@ -39,6 +68,7 @@
                             <th>Short URL</th>
                             <th>View Stats</th>
                             <th>Original URL</th>
+                            <th>Number of Hits</th>
                             <th>Date Created</th>
                         </tr>
                     </thead>
@@ -46,14 +76,15 @@
                 </table>
             </div>
         </div>
-        <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" data-focus-on="input:first">
-                <div class="modal-dialog modal-lg" role="document">
-                  <div class="modal-content">
+        <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true"
+            data-focus-on="input:first">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
                     <div class="modal-header">
-                      <h3 class="modal-title" id="exampleModalLongTitle">Modal Title</h3>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
+                        <h3 class="modal-title" id="exampleModalLongTitle">Modal Title</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <div class="table-responsive" id="d2">
@@ -62,12 +93,12 @@
                                     <tr>
                                         <th>IP</th>
                                         <th>Timestamp</th>
-                                        <th>Country</th>
-                                        <th>City</th>
-                                        <th>Region</th>
                                         <th>Browser</th>
-                                        <th>DEvice OS</th>
+                                        <th>Device OS</th>
                                         <th>Device Type</th>
+                                        <th>City</th>
+                                        <th>Country</th>
+                                        <th>Region</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -75,12 +106,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
-                  </div>
                 </div>
-              </div>
+            </div>
+        </div>
     </div>
-<script src="script/script1.js"></script>
+    <script src="script/script1.js"></script>
 </body>
+
 </html>

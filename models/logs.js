@@ -8,7 +8,7 @@ var logSchema = Schema({
         default: Date.now().toString()
     },
     ip: {
-        type:String,
+        type: String,
         default: 0
     },
     country: {
