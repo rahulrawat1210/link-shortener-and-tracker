@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/fontawesome/css/all.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+    </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row" id="mainContainer">
+
+            <div class="col-sm-4 firstcol">
+                <h1 id="title">URL Analytics</h1>
+            </div>
+
+            <div class="col-sm-8">
+                <div class="row" id="buttonContainer">
+
+                    <div class="col-sm-12">
+                        <a class="wrapper one" href="/viewInfo" target="_blank">
+                            <div class="option">
+                                <span>All Data</span>
+                                <i class="fas fa-database"></i>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="wrapper two btn" data-toggle="modal" data-target="#searchModal">
+                            <div class="option">
+                                <span>
+                                    Search
+                                </span>
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="wrapper three btn" data-toggle="modal" data-target="#cookieModal">
+                            <div class="option">
+                                <span>Cookies</span>
+                                <i class="fas fa-cookie-bite"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true"
+        data-focus-on="input:first">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLongTitle">Seach Parameters</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/viewInfo" method="GET" target="_blank">
+                        <div class="input-group mb-3 form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Short-URL</span>
+                            </div>
+                            <input type="text" class="form-control sURL" name="sURL" placeholder="Enter Short URL" aria-label="shortURL" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="fas fa-minus"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="input-group mb-3 form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Long-URL</span>
+                            </div>
+                            <input type="text" class="form-control lURL" name="lURL" placeholder="Enter Long URL" aria-label="longURL" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="input-group mb-3 form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Start Date</span>
+                            </div>
+                            <input type="date" class="form-control sDate" name="sDate" placeholder="" aria-label="startingDate" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="far fa-clock"></i>
+                                </span>
+                            </div>
+                            <span id="to-date">-to-</span>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">End Date</span>
+                            </div>
+                            <input type="date" class="form-control eDate" name="eDate" placeholder="" aria-label="startingDate" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="form-text text-muted">
+                            *Fill only End Date to get particular date results.
+                        </p>
+
+                        <input type="submit" id="search">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <label for="search" class="btn btn-default searchLabel">
+                        <i class="fas fa-search"></i> Search</label>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cookieModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true"
+        data-focus-on="input:first">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLongTitle">Cookie Settings</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3 form-group">
+                        <div class="input-group-prepend">
+                            <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="left" title="Number Of Hits Allowed!"
+                                data-content="It's the maximum number of hits allowed in the given time-interval.">Hit Limit</a>
+                        </div>
+                        <input type="number" min="1" max="1000" class="form-control hits" name="hits" placeholder="Hit Limit per User" aria-label="shortURL"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                <i class="fas fa-users"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group mb-3 form-group">
+                        <div class="input-group-prepend">
+                            <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="left" title="Block Time Interval!"
+                                data-content="It's the time interval in which only a particular number of hits are allowed..">Hit Interval</a>
+                        </div>
+                        <input type="number" class="form-control intDays" name="interval_day" min="0" max="31" placeholder="Days" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                Days
+                            </span>
+                        </div>
+
+                        <input type="number" class="form-control intHours" name="interval_hours" min="0" max="60" placeholder="Hours" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                Hours
+                            </span>
+                        </div>
+
+                        <input type="number" class="form-control intMinutes" name="interval_mins" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                <div>Mins</div>
+                                <i class="fas fa-ban text-small"></i>
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <div class="input-group mb-3 form-group">
+                        <div class="input-group-prepend">
+                            <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" title="Block Time Period" data-content="It's the time-period for which the user is blocked."
+                                data-placement="left">Block Time</a>
+                        </div>
+                        <input type="number" class="form-control Days" name="block_day" min="0" max="31" placeholder="Days" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                Days
+                            </span>
+                        </div>
+
+                        <input type="number" class="form-control Hours" name="block_hours" min="0" max="60" placeholder="Hours" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                Hours
+                            </span>
+                        </div>
+
+                        <input type="number" class="form-control Minutes" name="block_mins" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
+                            aria-describedby="basic-addon1">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">
+                                <div>Mins</div>
+                                <i class="fas fa-stopwatch text-small"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="form-text text-muted">
+                        *If any field is left empty then the previous value will persist for that option.
+                    </p>
+
+                    <p class="form-text text-muted">
+                        *Click on field names for extra info.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" id="save">
+                        <i class="fas fa-cogs"></i> Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $("#save").on('click', function () {
+            var hits = $(".hits").val();
+
+            var interval = 0;
+
+            if ($('.intDays').val() !== null) {
+                interval += $('.intDays').val() * 86400;
+            }
+
+            if ($('.intHours').val() !== null) {
+                interval += $('.intHours').val() * 3600;
+            }
+
+            if ($('.intMinutes').val() !== null) {
+                console.log($('.intMinutes').val());
+                console.log(interval);
+                interval += $('.intMins').val() * 60;
+            }
+
+            if (interval === 0) {
+                interval = null;
+
+            } else {
+                interval *= 1000;
+                interval += 20000;
+            }
+
+            var block = 0;
+
+            if ($('.Days').val() !== null) {
+                block += $('.Days').val() * 86400;
+            }
+
+            if ($('.Hours').val() !== null) {
+                block += $('.Hours').val() * 3600;
+            }
+
+            if ($('.Minutes').val()) {
+                block += $('.Mins').val() * 60;
+            }
+
+            if (block === 0) {
+                console.log("block was zero");
+                block = null;
+
+            } else {
+                block *= 1000;
+                block += 20000;
+            }
+
+            console.log(hits + block + interval);
+
+            $.ajax({
+                type: "POST",
+                url: '/cookieSettings',
+                dataType: "json",
+                data: {
+                    hit: hits,
+                    block: block,
+                    interval: interval
+                },
+                success: function (res) {
+                    console.log(res);
+                    alert("Your settings are saved! The new settings are: \nHits: " + res.hit +
+                        "\nBlock Time: " + res.block + "ms." + "\nHits Interval: " + res.interval
+                    );
+                },
+                error: function (data) {
+                    alert("Some error occurred in making request to server!!!");
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

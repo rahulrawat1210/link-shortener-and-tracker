@@ -1,3 +1,3 @@
-document.getElementById("sub").addEventListener('click', function(){
-  
+$('#search').on('click', function() {
+    
 })

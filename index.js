@@ -18,6 +18,10 @@ app.use(cors());
 
 var query = {};
 
+var cookieTimeLimit = 10000; //(around 7 seconds)
+var cookieHitLimit = 3;
+var cookieBlockTime = 10000 //(around 7 seconds)
+
 // grab the url modelss
 var Url = require('./models/url.js')
 var logs = require('./models/logs.js');
@@ -104,11 +108,11 @@ app.post('/api/shorten', function (req, res) {
 });
 
 app.get('/getData', function (req, res) {
-    Url.find({}, function (err, docs) {
+    Url.find(query, function (err, docs) {
         if (err) console.log(err);
         else
             var dataMap = [];
-
+        query = {};
         docs.forEach(function (doc) {
             var data = {
                 shortURL: config.webhost + base58.encode(doc._id),
@@ -122,6 +126,7 @@ app.get('/getData', function (req, res) {
 
         res.send(dataMap);
     });
+    query = {};
 });
 
 app.post('/insertLog', (req, res) => {
@@ -153,6 +158,28 @@ app.post('/viewmore', function (req, res) {
     });
 
     // console.log(myUrl.parse(sURL).path.substr(1));    
+});
+
+app.post('/cookieSettings', function (req, res) {
+    console.log("Hit!");
+    console.log(req.body);
+    let hit = req.body.hit;
+    let interval = req.body.interval;
+    let block = req.body.block;
+
+    if(hit) {
+        cookieHitLimit = hit;
+    }
+
+    if(block == Number) {
+        cookieBlockTime = block;
+    }
+
+    if(interval == Number) {
+        cookieTimeLimit = interval;
+    }
+
+    res.send({ hit: cookieHitLimit, block: cookieBlockTime, interval: cookieTimeLimit });
 });
 
 app.post('/ipInfo', function (req, res) {
@@ -223,7 +250,43 @@ app.post('/ipInfo', function (req, res) {
 });
 
 app.get('/viewInfo', function (req, res) {
+    let {sURL, lURL, sDate, eDate} = req.query;
+
+    if(sURL) {
+        query._id = base58.decode(myUrl.parse(sURL).path.substr(1));
+    }
+
+    if(lURL) {
+        query.long_url = lURL;
+    }
+
+    if(sDate) {
+        if(!query.created_at) {
+            query.created_at = {};
+        }
+
+        var dates = sDate.split('-');
+
+        query.created_at.$gte = new Date(parseInt(dates[0]), parseInt(dates[1] - 1), parseInt(dates[2]));
+    }
+
+    if(eDate) {
+        if(!query.created_at) {
+            query.created_at = {};
+        }
+
+        var dates = eDate.split('-');
+
+        query.created_at.$lte = new Date(parseInt(dates[0]), parseInt(dates[1] - 1), parseInt(dates[2]));
+    }
+
+    console.log(query);
+
     res.sendFile(path.join(__dirname, "public", "viewAll.html")); 
+});
+
+app.get('/query', function (req, res) {
+    res.sendFile(path.join(__dirname, "public", "URLManager.html")); 
 });
 
 app.get('/:encoded_id', function (req, res) {
@@ -243,6 +306,10 @@ app.get('/:encoded_id', function (req, res) {
 
     } else {
         res.cookie('counter', 1);
+    }
+
+    if(req.cookies.counter >= cookieHitLimit) {
+        res.cookie('startTime', date.getTime());
     }
 
     var base58Id = req.params.encoded_id;
@@ -297,12 +364,13 @@ app.get('/:encoded_id', function (req, res) {
 
             console.log((req.cookies.currentTime - req.cookies.startTime));
 
-            if (req.cookies.counter >= 3 && (req.cookies.currentTime - req.cookies.startTime) <= 100000) {
+            if (req.cookies.counter >= cookieHitLimit && (req.cookies.currentTime - req.cookies.startTime) <= cookieTimeLimit) {
 
                 if (req.cookies.timestamp !== null && req.cookies.timestamp !== undefined) {
-                    if (Date.now() - req.cookies.timestamp > 50000) {
+                    if (Date.now() - req.cookies.timestamp > cookieBlockTime) {
                         res.clearCookie('timestamp');
                         res.clearCookie('startTime');
+                        res.clearCookie('counter');
                         blocked = false;
                         res.redirect(doc.long_url);
 
