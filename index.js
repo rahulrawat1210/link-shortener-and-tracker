@@ -16,6 +16,8 @@ var blocked = false;
 var cors = require('cors');
 app.use(cors());
 
+var query = {};
+
 // grab the url modelss
 var Url = require('./models/url.js')
 var logs = require('./models/logs.js');
@@ -221,7 +223,7 @@ app.post('/ipInfo', function (req, res) {
 });
 
 app.get('/viewInfo', function (req, res) {
-    res.sendFile(path.join(__dirname, "public", "viewAll.html")); //
+    res.sendFile(path.join(__dirname, "public", "viewAll.html")); 
 });
 
 app.get('/:encoded_id', function (req, res) {
