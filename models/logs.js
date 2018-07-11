@@ -41,5 +41,4 @@ var logSchema = Schema({
 // create a model from that schema
 var logs = mongoose.model('logs', logSchema);
 
-
 module.exports = logs;

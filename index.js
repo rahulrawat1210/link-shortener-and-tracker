@@ -163,9 +163,9 @@ app.post('/viewmore', function (req, res) {
 
 app.post("/login", (req, res) => {
     console.log(req.body.pass)
-        console.log(config.user.password)
-        console.log(config.user.name)
-        console.log(req.body.usern)
+    console.log(config.user.password)
+    console.log(config.user.name)
+    console.log(req.body.usern)
     if (req.body.pass == config.user.password && req.body.usern == config.user.name) {
 
         var Encoded = base64.encode(req.body.pass);

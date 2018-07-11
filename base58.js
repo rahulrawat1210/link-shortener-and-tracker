@@ -1,5 +1,6 @@
 var alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
 var base = alphabet.length; // base is the length of the alphabet (58 in this case)
+
 // utility function to convert base 10 integer to base 58 string
 function encode(num) {
     var encoded = '';
@@ -10,6 +11,7 @@ function encode(num) {
     }
     return encoded;
 }
+
 // utility function to convert a base 58 string to base 10 integer
 function decode(str) {
     var decoded = 0;
@@ -21,5 +23,6 @@ function decode(str) {
     }
     return decoded;
 }
+
 module.exports.encode = encode;
 module.exports.decode = decode;
