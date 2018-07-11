@@ -286,3 +286,15 @@ a, a:hover {
     padding: 0 1px 0 5px;
     margin-bottom: 7px;
 }
+
+.logout {
+    position: absolute;
+    bottom: 15vh;
+    width: 200px;
+    right: calc(50% - 100px);
+    background: var(--slate-black);
+    box-shadow: 0 2px 10px 1px var(--coal-black);
+    border: 0;
+    text-shadow: 0 1px 4px rgba(19, 21, 21, 0.8);
+    color: var(--aqua);
+}

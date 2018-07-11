@@ -71,6 +71,8 @@
         </div>
     </div>
 
+    <button class="btn btn-primary btn-lg logout">Logout</button>
+
     <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true"
         data-focus-on="input:first">
         <div class="modal-dialog modal-lg" role="document">
@@ -159,7 +161,7 @@
                     <div class="input-group mb-3 form-group">
                         <div class="input-group-prepend">
                             <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="left" title="Number Of Hits Allowed!"
-                                data-content="It's the maximum number of hits allowed in the given time-interval.">Hit Limit</a>
+                                data-content="It's the maximum number of hits allowed in the given time-myInterval.">Hit Limit</a>
                         </div>
                         <input type="number" min="1" max="1000" class="form-control hits" name="hits" placeholder="Hit Limit per User" aria-label="shortURL"
                             aria-describedby="basic-addon1">
@@ -172,10 +174,10 @@
 
                     <div class="input-group mb-3 form-group">
                         <div class="input-group-prepend">
-                            <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="left" title="Block Time Interval!"
-                                data-content="It's the time interval in which only a particular number of hits are allowed..">Hit Interval</a>
+                            <a class="input-group-text" tabindex="0" data-toggle="popover" data-trigger="focus" data-placement="left" title="Block Time myInterval!"
+                                data-content="It's the time myInterval in which only a particular number of hits are allowed..">Hit myInterval</a>
                         </div>
-                        <input type="number" class="form-control intDays" name="interval_day" min="0" max="31" placeholder="Days" aria-label="startingDate"
+                        <input type="number" class="form-control intDays" name="myInterval_day" min="0" max="31" placeholder="Days" aria-label="startingDate"
                             aria-describedby="basic-addon1">
                         <div class="input-group-append">
                             <span class="input-group-text" id="basic-addon1">
@@ -183,7 +185,7 @@
                             </span>
                         </div>
 
-                        <input type="number" class="form-control intHours" name="interval_hours" min="0" max="60" placeholder="Hours" aria-label="startingDate"
+                        <input type="number" class="form-control intHours" name="myInterval_hours" min="0" max="60" placeholder="Hours" aria-label="startingDate"
                             aria-describedby="basic-addon1">
                         <div class="input-group-append">
                             <span class="input-group-text" id="basic-addon1">
@@ -191,11 +193,11 @@
                             </span>
                         </div>
 
-                        <input type="number" class="form-control intMinutes" name="interval_mins" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
+                        <input type="number" class="form-control intMinutes" name="myInterval_Minutes" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
                             aria-describedby="basic-addon1">
                         <div class="input-group-append">
                             <span class="input-group-text" id="basic-addon1">
-                                <div>Mins</div>
+                                <div>Minutes</div>
                                 <i class="fas fa-ban text-small"></i>
                             </span>
                         </div>
@@ -223,11 +225,11 @@
                             </span>
                         </div>
 
-                        <input type="number" class="form-control Minutes" name="block_mins" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
+                        <input type="number" class="form-control Minutes" name="block_Minutes" min="0" max="60" placeholder="Minutes" aria-label="startingDate"
                             aria-describedby="basic-addon1">
                         <div class="input-group-append">
                             <span class="input-group-text" id="basic-addon1">
-                                <div>Mins</div>
+                                <div>Minutes</div>
                                 <i class="fas fa-stopwatch text-small"></i>
                             </span>
                         </div>
@@ -251,57 +253,73 @@
     </div>
 
     <script>
+        $('.logout').on('click', function () {
+            $.ajax({
+                url: '/logout',
+                type: 'POST',
+                success: function (res) {
+                    if (res.reply == 'success') window.location.href = res.redirect;
+                }
+            })
+        })
+
         $("#save").on('click', function () {
-            var hits = $(".hits").val();
+            var hits = parseInt($(".hits").val());
 
-            var interval = 0;
+            var myInterval = parseFloat("0");
 
-            if ($('.intDays').val() !== null) {
-                interval += $('.intDays').val() * 86400;
+            if ($('.intDays').val() != "") {
+                myInterval = parseFloat($('.intDays').val()) * 86400;
             }
 
-            if ($('.intHours').val() !== null) {
-                interval += $('.intHours').val() * 3600;
+            if ($('.intHours').val() != "") {
+                if (isNaN(myInterval)) {
+                    myInterval = parseFloat($('.intHours').val()) * 3600;
+
+                } else {
+                    myInterval += parseFloat($('.intHours').val()) * 3600;
+                }
+
             }
 
-            if ($('.intMinutes').val() !== null) {
-                console.log($('.intMinutes').val());
-                console.log(interval);
-                interval += $('.intMins').val() * 60;
+            if ($('.intMinutes').val() !== "") {
+                if (isNaN(myInterval)) {
+                    myInterval = (parseFloat($('.intMinutes').val()) * 60);
+
+                } else {
+                    myInterval += (parseFloat($('.intMinutes').val()) * 60);
+                }
             }
 
-            if (interval === 0) {
-                interval = null;
+            if (myInterval == 0) {
+                myInterval = null;
 
             } else {
-                interval *= 1000;
-                interval += 20000;
+                myInterval *= 1000;
+                myInterval += 20000;
             }
 
-            var block = 0;
+            var block = parseFloat(0);
 
-            if ($('.Days').val() !== null) {
-                block += $('.Days').val() * 86400;
+            if ($('.Days').val() !== "") {
+                block += parseFloat($('.Days').val()) * 86400;
             }
 
-            if ($('.Hours').val() !== null) {
-                block += $('.Hours').val() * 3600;
+            if ($('.Hours').val() !== "") {
+                block += parseFloat($('.Hours').val()) * 3600;
             }
 
             if ($('.Minutes').val()) {
-                block += $('.Mins').val() * 60;
+                block += (parseFloat($('.Minutes').val()) * 60);
             }
 
-            if (block === 0) {
-                console.log("block was zero");
+            if (block == 0) {
                 block = null;
 
             } else {
                 block *= 1000;
                 block += 20000;
             }
-
-            console.log(hits + block + interval);
 
             $.ajax({
                 type: "POST",
@@ -310,12 +328,13 @@
                 data: {
                     hit: hits,
                     block: block,
-                    interval: interval
+                    myInterval: myInterval
                 },
                 success: function (res) {
                     console.log(res);
                     alert("Your settings are saved! The new settings are: \nHits: " + res.hit +
-                        "\nBlock Time: " + res.block + "ms." + "\nHits Interval: " + res.interval
+                        "\nBlock Time: " + res.block + "ms." + "\nHits myInterval: " + res.interval +
+                        "ms"
                     );
                 },
                 error: function (data) {

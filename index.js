@@ -5,6 +5,7 @@ const path = require('path')
 const bodyParser = require('body-parser')
 const config = require('./config.js')
 const base58 = require('./base58.js')
+const base64 = require('js-base64').Base64;
 const useragent = require('useragent')
 const request = require('request')
 const requestIp = require('request-ip')
@@ -160,33 +161,74 @@ app.post('/viewmore', function (req, res) {
     // console.log(myUrl.parse(sURL).path.substr(1));    
 });
 
+app.post("/login", (req, res) => {
+    console.log(req.body.pass)
+        console.log(config.user.password)
+        console.log(config.user.name)
+        console.log(req.body.usern)
+    if (req.body.pass == config.user.password && req.body.usern == config.user.name) {
+
+        var Encoded = base64.encode(req.body.pass);
+        res.cookie("password", Encoded);
+        res.json({
+            reply: "success",
+            redirect: "/query"
+        });
+    } else {
+        res.json({
+            reply: "Wrong username or password!!!"
+        });
+    }
+})
+
+app.get('/loginScreen', (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.post("/logout", function (req, res, next) {
+    console.log('came here!');
+    res.clearCookie("password");
+    res.json({
+        reply: "success",
+        redirect: "/loginScreen"
+    });
+});
+
 app.post('/cookieSettings', function (req, res) {
     console.log("Hit!");
     console.log(req.body);
     let hit = req.body.hit;
-    let interval = req.body.interval;
+    let interval = req.body.myInterval;
     let block = req.body.block;
 
-    if(hit) {
+    console.log(isNaN(hit));
+    console.log(isNaN(block));
+    console.log(isNaN(interval));
+
+    if (hit && !isNaN(hit)) {
         cookieHitLimit = hit;
     }
 
-    if(block == Number) {
+    if (block && !isNaN(block)) {
         cookieBlockTime = block;
     }
 
-    if(interval == Number) {
+    if (interval && !isNaN(interval)) {
         cookieTimeLimit = interval;
     }
 
-    res.send({ hit: cookieHitLimit, block: cookieBlockTime, interval: cookieTimeLimit });
+    res.send({
+        hit: cookieHitLimit,
+        block: cookieBlockTime,
+        interval: cookieTimeLimit
+    });
 });
 
 app.post('/ipInfo', function (req, res) {
 
     var ip;
 
-    if(req.body.ip == "::1") {
+    if (req.body.ip == "::1") {
         ip = "";
 
     } else {
@@ -229,7 +271,9 @@ app.post('/ipInfo', function (req, res) {
                         city: data.city,
                         region: data.regionName
 
-                    }, {multi: true}, 
+                    }, {
+                        multi: true
+                    },
                     function (err, info) {
 
                         console.log("===============================");
@@ -250,18 +294,23 @@ app.post('/ipInfo', function (req, res) {
 });
 
 app.get('/viewInfo', function (req, res) {
-    let {sURL, lURL, sDate, eDate} = req.query;
+    let {
+        sURL,
+        lURL,
+        sDate,
+        eDate
+    } = req.query;
 
-    if(sURL) {
+    if (sURL) {
         query._id = base58.decode(myUrl.parse(sURL).path.substr(1));
     }
 
-    if(lURL) {
+    if (lURL) {
         query.long_url = lURL;
     }
 
-    if(sDate) {
-        if(!query.created_at) {
+    if (sDate) {
+        if (!query.created_at) {
             query.created_at = {};
         }
 
@@ -270,8 +319,8 @@ app.get('/viewInfo', function (req, res) {
         query.created_at.$gte = new Date(parseInt(dates[0]), parseInt(dates[1] - 1), parseInt(dates[2]));
     }
 
-    if(eDate) {
-        if(!query.created_at) {
+    if (eDate) {
+        if (!query.created_at) {
             query.created_at = {};
         }
 
@@ -282,11 +331,17 @@ app.get('/viewInfo', function (req, res) {
 
     console.log(query);
 
-    res.sendFile(path.join(__dirname, "public", "viewAll.html")); 
+    res.sendFile(path.join(__dirname, "public", "viewAll.html"));
 });
 
 app.get('/query', function (req, res) {
-    res.sendFile(path.join(__dirname, "public", "URLManager.html")); 
+    var p = base64.decode(req.cookies.password);
+    if (p == config.user.password) {
+        res.sendFile(path.join(__dirname, "public", "URLManager.html"));
+
+    } else {
+        res.redirect('/loginScreen');
+    }
 });
 
 app.get('/:encoded_id', function (req, res) {
@@ -308,7 +363,7 @@ app.get('/:encoded_id', function (req, res) {
         res.cookie('counter', 1);
     }
 
-    if(req.cookies.counter >= cookieHitLimit) {
+    if (req.cookies.counter >= cookieHitLimit) {
         res.cookie('startTime', date.getTime());
     }
 
