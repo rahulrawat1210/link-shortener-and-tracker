@@ -1,3 +1,0 @@
-$('#search').on('click', function() {
-    
-})
