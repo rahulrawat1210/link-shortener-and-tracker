@@ -448,3 +448,7 @@ app.get('/:encoded_id', function (req, res) {
     });
 
 });
+
+app.get('/about-app', function (req, res) {
+    res.send("Author: Rahul Singh Rawat");
+});
